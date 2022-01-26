@@ -41,50 +41,36 @@ def cli():
     main(args.input, args.output, overwrite=args.overwrite, template_name=args.template + '.jinja2')
 
 
-def main(
-    har_file: str,
-    py_file: str,
-    overwrite: bool = False,
-    template_dir: str = pathlib.Path(__file__).parents[0],
-    template_name: str = 'requests.jinja2'
-):
+def main(har_file, py_file, overwrite = False, template_dir= pathlib.Path(__file__).parents[0], template_name = 'requests.jinja2'):
     har_file = pathlib.Path(har_file)
-    if py_file:
-        py_file = pathlib.Path(py_file)
-    else:
-        py_file = har_file.with_suffix('.py')
+    py_file = pathlib.Path(py_file) if py_file else har_file.with_suffix('.py')
 
     if not har_file.is_file():
         raise FileNotFoundError
 
     if har_file.suffix != '.har':
-        raise IOError(
-            'input file has not ".har" extension. Please use an ".har" file'
-        )
+        raise IOError('Input file has not ".har" extension. Please use an ".har" file')
 
     if py_file.suffix != '.py':
-        raise IOError(
-            'output file has not ".py" extension. Please use an ".py" file'
-        )
+        raise IOError('Output file has not ".py" extension. Please use an ".py" file')
 
     if not overwrite and py_file.is_file():
         raise FileExistsError(f'{py_file} already exists.')
 
+    # Load HAR
     with open(har_file, encoding='utf8', errors='ignore') as f:
         har = json.load(f)
     logging.debug(f'load {har_file}')
 
-    har = preprocessing(har)
-    py = rendering(har, template_dir=template_dir, template_name=template_name)
+    py = rendering(preprocessing(har), template_dir=template_dir, template_name=template_name)
 
     with open(py_file, 'w') as f:
         f.write(py)
-    logging.debug(f'saving {py_file}')
+    logging.debug(f'Saved {py_file}')
 
 
 def preprocessing(har: dict):
     requests = [e['request'] for e in har['log']['entries']]
-    print(requests)
     return {
         'requests': [
             {
@@ -94,30 +80,26 @@ def preprocessing(har: dict):
                 'cookies': [(h['name'], h['value']) for h in request['cookies']],
                 'params': [(p['name'], p['value']) for p in request['queryString']],
                 'payload': request['postData']['text'] if 'postData' in request else False,
+                #'jsonPayload': 'application/json' in request['postData']['mimeType'] if 'postData' in request else False
             } for request in requests
         ]
     }
 
 def rendering(har: dict, template_dir: str = pathlib.Path(__file__).parents[0], template_name: str = 'requests.jinja2'):
-    # check for the correctness of the har structure
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
     template = env.get_template(template_name)
-    logging.debug(f'render har with "{template.name}" template')
+    logging.debug(f'Using template: "{template.name}"')
 
-    print(har['requests'])
-    py = template.render(
-        requests=har['requests'],
-    )
+    py = template.render(requests=har['requests'])
 
-    # test if the generated code is python valid code
     try:
         ast.parse(py)
     except SyntaxError:
-        raise SyntaxError(
-            'cannot parse har into valid python code. '
-            'Please check the correctness of the jinja2 template'
-        )
+        raise SyntaxError('Failed to generate code, ensure that template is valid')
 
-    logging.debug('successfully generate valid python code')
+    logging.debug('Successfully generate valid python code')
 
     return py
+
+if __name__ == "__main__":
+    cli()
