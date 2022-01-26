@@ -36,11 +36,6 @@ optional arguments:
   -t TEMPLATE, --template TEMPLATE
                         jinja2 template used to generate py code. Default to requests.
                         (For now "requests" is the only available template)
-  -f FILTERS, --filters FILTERS
-                        commas value separeted string of the resource type you want to
-                        include in py generated code. Supported type are `xhr`,
-                        `script`, `stylesheet`, `image`, `font`, `document`, `other`.
-                        Default to xhr,document,other.
   -w, --overwrite       overwrite py file if one previous py file with the same name
                         already exists.
 
