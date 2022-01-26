@@ -1,14 +1,6 @@
 # har2py
 
-When browsing the web with the Developer Tools open you can record the Network
-Activities (requests perform by your browser & responses you get from servers).
-Then you can export all these data into an [HAR](https://en.wikipedia.org/wiki/HAR_(file_format))
-file (Http ARchive). With **har2py** you can convert HAR file into valid python
-code that reproduce the requests perform by your browser.
-
-## Installation
-
-Just a simple pip install, i.e. `python3 -m pip install har2py`
+This is a fork of S1M0N38's har2py highly modified to meet my needs, mostly adding the request payload but also removing responses and cleaning up the code.
 
 ## Usage
 
@@ -53,15 +45,3 @@ optional arguments:
                         already exists.
 
 ```
-
-## Similar projects
-
-I like to develope my own program so I can extend easly by adding new jinja2 templates.
-In the past I use this other projects and from them I have been ispired to build
-har2py.
-
-- [curlconverter](https://github.com/NickCarneiro/curlconverter):
-  Convert cURL syntax to native Python, Go, PHP, JavaScript, R, Elixir and Dart
-  HTTP code
-- [har2requests](https://github.com/louisabraham/har2requests):
-  Generate Python Requests code from your browser activity

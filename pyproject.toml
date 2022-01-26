@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "har2py"
-version = "0.1.2"
+version = "0.2.0"
 description = ""
-authors = ["S1M0N38 <bertolottosimone@gmail.com>"]
+authors = ["edde746 <edvard.wikhall@gmail.com>", "S1M0N38 <bertolottosimone@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"

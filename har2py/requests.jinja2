@@ -1,23 +1,11 @@
 import requests
 
 
-{{ session.name }} = requests.Session()
-{%- if session.headers %}
-{{ session.name }}.headers = {
-    {%- for (key, value) in session.headers %}
-    '{{ key }}': '{{value}}',
-    {%- endfor %}
-}
-{%- endif %}
-{%- for (key, value) in session.cookies %}
-{{ session.name }}.cookies.set('{{ key }}', '{{ value }}')
-{%- endfor %}
+s = requests.Session()
 
 {% for request in requests -%}
 
-###############################################################################
-# request number: {{ loop.index }}
-# resource type: {{ resources_types[loop.index0] }}
+# Request #{{ loop.index }}
 
 url = '{{ request.url.split('?')[0] }}'
 {%- if request.headers %}
@@ -34,6 +22,9 @@ cookies = {
     {%- endfor %}
 }
 {%- endif %}
+{%- if request.payload %}
+payload = '{{ request.payload }}'
+{%- endif %}
 {%- if request.params %}
 params = [
     {%- for (key, value) in request.params %}
@@ -41,25 +32,12 @@ params = [
     {%- endfor %}
 ]
 {%- endif %}
-rc = {{ session.name }}.{{ request.method }}(url
+rc = s.{{ request.method }}(url
 {%- if request.headers -%}, headers=headers{%- endif -%}
 {%- if request.cookies -%}, cookies=cookies{%- endif -%}
-{%- if request.params -%}, params=params{%- endif -%})
+{%- if request.params -%}, params=params{%- endif -%}
+{%- if request.payload -%}, payload=payload{%- endif -%})
 
-{% set response = responses[loop.index0] %}
-# response status code: {{ response.status }}
-{%- if response.headers %}
-# response headers:
-{%- for (key, value) in response.headers %}
-#   - {{ key }}: {{ value }}
-{%- endfor -%}
-{%- endif %}
-{%- if response.cookies %}
-# response cookies:
-{%- for (key, value) in response.cookies %}
-#   - {{ key }}: {{ value }}
-{%- endfor -%}
-{%- endif %}
-###############################################################################
+# End of request
 
 {% endfor %}
